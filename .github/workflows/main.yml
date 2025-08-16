@@ -1,75 +1,52 @@
-name: Build Windows Application
+name: Build and Release AMAI_GUI.exe
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    tags:
+      - 'v*' # 触发标签如 v1.0, v2.1 等，表示发布版本
 
 jobs:
   build:
-    runs-on: windows-latest
+    name: Build Windows EXE
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up MSVC
-      uses: ilammy/msvc-dev-cmd@v1
+    - name: Setup MinGW for Windows cross-compilation
+      uses: egor-tensin/setup-mingw@v3
       with:
-        arch: x64
+        architecture: x86_64
 
-    - name: Install required tools
+    - name: Compile AMAI_GUI.exe (GUI, no console)
       run: |
-        choco install -y upx
+        mkdir -p dist
+        x86_64-w64-mingw32-gcc \
+          -mwindows \
+          -municode \
+          -O2 \
+          -Wall \
+          -Wextra \
+          -finput-charset=UTF-8 \
+          -fexec-charset=CP936 \
+          src/main.c \
+          -o dist/AMAI_GUI.exe \
+          -lcomctl32
+        echo " Compiled: dist/AMAI_GUI.exe"
 
-    - name: Create build directory
-      run: mkdir build
-
-    - name: Build application
+    - name: Create ZIP package
       run: |
-        cl /O1 /Os /GS- /MT /FeAMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64  
-        if ($LASTEXITCODE -ne 0) {  
-            Write-Host "Compilation failed!"  
-            exit 1  
-        }  
+        cd dist && zip -r ../AMAI_GUI_Windows.zip *
 
-    - name: Debug directory
-      run: |
-        Write-Host "当前目录内容:"
-        Get-ChildItem
-        Write-Host "build目录内容:"
-        Get-ChildItem -Path build
-
-    - name: Compress with UPX
-      run: |
-        cd build
-        upx --best --lzma AMAI-Installer.exe
-        # 检查压缩后的文件大小
-        dir AMAI-Installer.exe
-
-    - name: Prepare artifacts
-      run: |
-        mkdir dist
-        copy AMAI-Installer.exe dist
-  
-
-    - name: Upload artifact
+    - name: Upload ZIP as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: AMAI-Installer
-        path: dist
+        path: AMAI_GUI_Windows.zip
+        name: AMAI_GUI_Windows
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    
-    steps:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
-        name: AMAI-Installer
-        path: dist
-
+        name: AMAI_GUI_Windows
+        path: AMAI_GUI_Windows.zip
