@@ -29,13 +29,11 @@ jobs:
 
     - name: Build application
       run: |
-        cl /O1 /Os /GS- /MT /Febuild/AMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64
-        # 使用PowerShell语法检查文件是否存在
-        if (-not (Test-Path -Path "build\AMAI-Installer.exe")) {
-          Write-Host "Error: AMAI-Installer.exe not found!"
-          Get-ChildItem -Path build
-          exit 1
-        }
+        cl /O1 /Os /GS- /MT /Fe"build\AMAI-Installer.exe" main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64  
+        if ($LASTEXITCODE -ne 0) {  
+            Write-Host "Compilation failed!"  
+            exit 1  
+        }  
 
     - name: Debug directory
       run: |
