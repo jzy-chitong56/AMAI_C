@@ -27,7 +27,7 @@ jobs:
 
     - name: Build application
       run: |
-        cl /O1 /Os /GS- /MT /FeAMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib
+        cl /O1 /Os /GS- /MT /Femain.c user32.lib gdi32.lib comctl32.lib shell32.lib
         upx --best --lzma AMAI-Installer.exe
 
     - name: Upload artifact
