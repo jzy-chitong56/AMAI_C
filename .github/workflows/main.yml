@@ -27,8 +27,20 @@ jobs:
 
     - name: Build application
       run: |
-        cl /O1 /Os /GS- /MT /Femain.c user32.lib gdi32.lib comctl32.lib shell32.lib
-        upx --best --lzma AMAI-Installer.exe
+    # 添加常用系统库 + 使用详细输出
+    cl /O1 /Os /GS- /MT /FeAMAI-Installer.exe main.c ^
+      user32.lib gdi32.lib comctl32.lib shell32.lib ^
+      kernel32.lib advapi32.lib /link /VERBOSE
+    
+    
+    if not exist AMAI-Installer.exe (
+      echo "##[error]编译失败：未生成 AMAI-Installer.exe"
+      dir /B *.obj   # 显示对象文件用于调试
+      dir /B *.lib   # 显示库文件
+      exit 1
+    )
+    
+    upx --best --lzma AMAI-Installer.exe
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
