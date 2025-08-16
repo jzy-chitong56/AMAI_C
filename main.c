@@ -272,20 +272,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CLOSE:
             DestroyWindow(hWnd);
             break;
-            
+        
         case WM_DESTROY:
             if (hFont) DeleteObject(hFont);
             PostQuitMessage(0);
             break;
-            
+        
         default:
             return DefWindowProc(hWnd, msg, wParam, lParam);
     }
     return 0;
 }
 
-// 主函数
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
+// 主函数 - 使用标准的WinMain入口点
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     // 注册窗口类
     WNDCLASSEX wc = {0};
     wc.cbSize = sizeof(WNDCLASSEX);
