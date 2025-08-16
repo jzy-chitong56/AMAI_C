@@ -29,7 +29,7 @@ jobs:
 
     - name: Build application
       run: |
-        cl /O1 /Os /GS- /MT /Fe"build\AMAI-Installer.exe" main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64  
+        cl /O1 /Os /GS- /MT /FeAMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64  
         if ($LASTEXITCODE -ne 0) {  
             Write-Host "Compilation failed!"  
             exit 1  
@@ -52,7 +52,7 @@ jobs:
     - name: Prepare artifacts
       run: |
         mkdir dist
-        copy build\AMAI-Installer.exe dist
+        copy AMAI-Installer.exe dist
   
 
     - name: Upload artifact
