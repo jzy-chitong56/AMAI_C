@@ -26,18 +26,18 @@ HFONT hFont; // 全局字体
 
 // 模式定义
 const TCHAR* modes[] = {
-    TEXT("安装 AMAI (标准控制台)"),
-    TEXT("安装 AMAI (对战暴雪AI控制台)"),
-    TEXT("安装 AMAI (不安装控制台)"),
-    TEXT("移除 AMAI 控制台"),
-    TEXT("完全卸载 AMAI")
+    L"安装 AMAI (标准控制台)",
+    L"安装 AMAI (对战暴雪AI控制台)",
+    L"安装 AMAI (不安装控制台)",
+    L"移除 AMAI 控制台",
+    L"完全卸载 AMAI"
 };
 
 // 版本定义
 const TCHAR* versions[] = {
-    TEXT("重制版 (1.33+)"),
-    TEXT("经典版: 冰封王座 (1.24e+)"),
-    TEXT("经典版: 混乱之治 (1.24e-1.31)")
+    L"重制版 (1.33+)",
+    L"经典版: 冰封王座 (1.24e+)",
+    L"经典版: 混乱之治 (1.24e-1.31)"
 };
 
 // 当前选择的模式
@@ -48,7 +48,7 @@ void AddLog(const TCHAR* message) {
     int len = GetWindowTextLength(hLogEdit);
     SendMessage(hLogEdit, EM_SETSEL, len, len);
     SendMessage(hLogEdit, EM_REPLACESEL, FALSE, (LPARAM)message);
-    SendMessage(hLogEdit, EM_REPLACESEL, FALSE, (LPARAM)TEXT("\r\n"));
+    SendMessage(hLogEdit, EM_REPLACESEL, FALSE, (LPARAM)L"\r\n");
 }
 
 // 执行操作
@@ -57,7 +57,7 @@ void ExecuteOperation() {
     GetWindowText(hPathEdit, path, MAX_PATH);
     
     if (_tcslen(path) == 0) {
-        MessageBox(hMainWnd, TEXT("请选择地图文件或文件夹"), TEXT("错误"), MB_ICONERROR);
+        MessageBox(hMainWnd, L"请选择地图文件或文件夹", L"错误", MB_ICONERROR);
         return;
     }
     
@@ -71,8 +71,8 @@ void ExecuteOperation() {
     EnableWindow(hExecuteButton, FALSE);
     
     // 清空日志
-    SetWindowText(hLogEdit, TEXT(""));
-    AddLog(TEXT("开始操作..."));
+    SetWindowText(hLogEdit, L"");
+    AddLog(L"开始操作...");
     
     // 获取模式
     int mode = currentMode;
@@ -86,46 +86,46 @@ void ExecuteOperation() {
     TCHAR script[50];
     
     if (mode < 3) { // 安装模式
-        _tcscpy(script, TEXT("install.bat"));
+        _tcscpy(script, L"install.bat");
         
         // 控制台类型: 0=不安装, 1=标准, 2=VS暴雪
         int consoleType = (mode == 2) ? 0 : (mode == 1) ? 2 : 1;
         
         // 版本: 0=重制版, 1=冰封王座, 2=混乱之治
-        _stprintf(args, TEXT("%d %d \"%s\""), consoleType, version, path);
+        _stprintf(args, L"%d %d \"%s\"", consoleType, version, path);
     } else if (mode == 3) { // 移除控制台
-        _tcscpy(script, TEXT("uninstall_console.bat"));
-        _stprintf(args, TEXT("\"%s\""), path);
+        _tcscpy(script, L"uninstall_console.bat");
+        _stprintf(args, L"\"%s\"", path);
     } else { // 完全卸载
-        _tcscpy(script, TEXT("uninstall_all.bat"));
-        _stprintf(args, TEXT("\"%s\""), path);
+        _tcscpy(script, L"uninstall_all.bat");
+        _stprintf(args, L"\"%s\"", path);
     }
     
     // 执行批处理
-    AddLog(TEXT("正在执行脚本..."));
+    AddLog(L"正在执行脚本...");
     
     // 使用更安全的方式执行批处理
     STARTUPINFO si = { sizeof(si) };
     PROCESS_INFORMATION pi;
     TCHAR commandLine[1024];
     
-    _stprintf(commandLine, TEXT("cmd.exe /C \"%s %s\""), script, args);
+    _stprintf(commandLine, L"cmd.exe /C \"%s %s\"", script, args);
     
     if (CreateProcess(NULL, commandLine, NULL, NULL, FALSE, 
                      CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
         WaitForSingleObject(pi.hProcess, INFINITE);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-        AddLog(TEXT("脚本执行完成!"));
+        AddLog(L"脚本执行完成!");
     } else {
         TCHAR errorMsg[256];
-        _stprintf(errorMsg, TEXT("执行失败: %s (错误 %d)"), script, GetLastError());
+        _stprintf(errorMsg, L"执行失败: %s (错误 %d)", script, GetLastError());
         AddLog(errorMsg);
     }
     
     // 更新进度
     SendMessage(hProgressBar, PBM_SETPOS, 100, 0);
-    AddLog(TEXT("操作完成!"));
+    AddLog(L"操作完成!");
     
     // 启用UI
     EnableWindow(hModeCombo, TRUE);
@@ -145,7 +145,7 @@ void BrowsePath() {
         // 浏览文件夹
         BROWSEINFO bi = {0};
         bi.hwndOwner = hMainWnd;
-        bi.lpszTitle = TEXT("选择地图文件夹");
+        bi.lpszTitle = L"选择地图文件夹";
         bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
         
         LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
@@ -162,7 +162,7 @@ void BrowsePath() {
         
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = hMainWnd;
-        ofn.lpstrFilter = TEXT("魔兽地图文件 (*.w3x;*.w3m)\0*.w3x;*.w3m\0所有文件 (*.*)\0*.*\0");
+        ofn.lpstrFilter = L"魔兽地图文件 (*.w3x;*.w3m)\0*.w3x;*.w3m\0所有文件 (*.*)\0*.*\0";
         ofn.lpstrFile = path;
         ofn.nMaxFile = MAX_PATH;
         ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
@@ -178,32 +178,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_CREATE: {
             // 创建控件
-            hModeCombo = CreateWindow(TEXT("COMBOBOX"), TEXT(""), WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP,
+            hModeCombo = CreateWindow(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP,
                 20, 20, 300, 200, hWnd, (HMENU)IDC_MODE_COMBO, NULL, NULL);
             
-            hBatchRadio = CreateWindow(TEXT("BUTTON"), TEXT("批量处理 (文件夹)"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            hBatchRadio = CreateWindow(L"BUTTON", L"批量处理 (文件夹)", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                 20, 60, 150, 25, hWnd, (HMENU)IDC_BATCH_RADIO, NULL, NULL);
             
-            hSingleRadio = CreateWindow(TEXT("BUTTON"), TEXT("单个地图"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+            hSingleRadio = CreateWindow(L"BUTTON", L"单个地图", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                 180, 60, 100, 25, hWnd, (HMENU)IDC_SINGLE_RADIO, NULL, NULL);
             
-            hVersionCombo = CreateWindow(TEXT("COMBOBOX"), TEXT(""), WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP,
+            hVersionCombo = CreateWindow(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP,
                 20, 100, 300, 200, hWnd, (HMENU)IDC_VERSION_COMBO, NULL, NULL);
             
-            hPathEdit = CreateWindow(TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+            hPathEdit = CreateWindow(L"EDIT", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
                 20, 140, 250, 25, hWnd, (HMENU)IDC_PATH_EDIT, NULL, NULL);
             
-            hBrowseButton = CreateWindow(TEXT("BUTTON"), TEXT("浏览..."), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+            hBrowseButton = CreateWindow(L"BUTTON", L"浏览...", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
                 280, 140, 80, 25, hWnd, (HMENU)IDC_BROWSE_BUTTON, NULL, NULL);
             
-            hProgressBar = CreateWindow(PROGRESS_CLASS, TEXT(""), WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
+            hProgressBar = CreateWindow(PROGRESS_CLASS, L"", WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
                 20, 180, 340, 25, hWnd, (HMENU)IDC_PROGRESS_BAR, NULL, NULL);
             
-            hLogEdit = CreateWindow(TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | 
+            hLogEdit = CreateWindow(L"EDIT", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | 
                 ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
                 20, 220, 340, 150, hWnd, (HMENU)IDC_LOG_EDIT, NULL, NULL);
             
-            hExecuteButton = CreateWindow(TEXT("BUTTON"), TEXT("执行"), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+            hExecuteButton = CreateWindow(L"BUTTON", L"执行", WS_CHILD | WS_VISIBLE | WS_TABSTOP,
                 20, 380, 340, 30, hWnd, (HMENU)IDC_EXECUTE_BUTTON, NULL, NULL);
             
             // 设置字体 - 使用更可靠的方法
@@ -211,8 +211,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             ncm.cbSize = sizeof(NONCLIENTMETRICS);
             SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
             
-            // 创建字体
-            hFont = CreateFontIndirect(&ncm.lfMessageFont);
+            // 创建字体 - 强制使用中文系统字体
+            LOGFONT lf;
+            memset(&lf, 0, sizeof(LOGFONT));
+            lf.lfHeight = -MulDiv(10, GetDeviceCaps(GetDC(NULL), LOGPIXELSY), 72);
+            lf.lfWeight = FW_NORMAL;
+            lf.lfCharSet = GB2312_CHARSET;
+            wcscpy_s(lf.lfFaceName, LF_FACESIZE, L"微软雅黑");
+            
+            hFont = CreateFontIndirect(&lf);
+            
+            if (!hFont) {
+                // 回退到系统默认字体
+                hFont = CreateFontIndirect(&ncm.lfMessageFont);
+            }
             
             if (hFont) {
                 SendMessage(hModeCombo, WM_SETFONT, (WPARAM)hFont, TRUE);
@@ -286,6 +298,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 // 主函数 - 使用标准的WinMain入口点
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    // 设置进程为UTF-8编码
+    SetConsoleOutputCP(CP_UTF8);
+    
     // 注册窗口类
     WNDCLASSEX wc = {0};
     wc.cbSize = sizeof(WNDCLASSEX);
@@ -294,20 +309,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wc.lpszClassName = TEXT("AMAIInstallerClass");
+    wc.lpszClassName = L"AMAIInstallerClass";
     
     if (!RegisterClassEx(&wc)) {
-        MessageBox(NULL, TEXT("窗口注册失败!"), TEXT("错误"), MB_ICONERROR);
+        MessageBox(NULL, L"窗口注册失败!", L"错误", MB_ICONERROR);
         return 1;
     }
     
     // 创建主窗口
-    hMainWnd = CreateWindowEx(0, wc.lpszClassName, TEXT("AMAI 安装工具"), 
+    hMainWnd = CreateWindowEx(0, wc.lpszClassName, L"AMAI 安装工具", 
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, 400, 500, NULL, NULL, hInstance, NULL);
     
     if (!hMainWnd) {
-        MessageBox(NULL, TEXT("窗口创建失败!"), TEXT("错误"), MB_ICONERROR);
+        MessageBox(NULL, L"窗口创建失败!", L"错误", MB_ICONERROR);
         return 1;
     }
     
