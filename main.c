@@ -1,3 +1,6 @@
+#define UNICODE
+#define _UNICODE
+
 #include <windows.h>
 #include <commctrl.h>
 #include <shlobj.h>
@@ -203,17 +206,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hExecuteButton = CreateWindow(TEXT("BUTTON"), TEXT("执行"), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
                 20, 380, 340, 30, hWnd, (HMENU)IDC_EXECUTE_BUTTON, NULL, NULL);
             
-            // 设置字体
-            hFont = CreateFont(
-                16, 0, 0, 0, FW_NORMAL, 
-                FALSE, FALSE, FALSE, 
-                GB2312_CHARSET, 
-                OUT_DEFAULT_PRECIS, 
-                CLIP_DEFAULT_PRECIS, 
-                DEFAULT_QUALITY, 
-                DEFAULT_PITCH | FF_DONTCARE, 
-                TEXT("微软雅黑")
-            );
+            // 设置字体 - 使用更可靠的方法
+            NONCLIENTMETRICS ncm = {0};
+            ncm.cbSize = sizeof(NONCLIENTMETRICS);
+            SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
+            
+            // 创建字体
+            hFont = CreateFontIndirect(&ncm.lfMessageFont);
             
             if (hFont) {
                 SendMessage(hModeCombo, WM_SETFONT, (WPARAM)hFont, TRUE);
