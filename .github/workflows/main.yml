@@ -34,8 +34,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AMAI-Installer
-        path:
-          AMAI-Installer.exe
 
   release:
     needs: build
@@ -47,11 +45,3 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: AMAI-Installer
-
-    - name: Create release
-      uses: softprops/action-gh-release@v4
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref_name }}
-        files:
-          AMAI-Installer.exe
