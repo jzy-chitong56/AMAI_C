@@ -1,6 +1,7 @@
-// 文件名: AMAI_GUI.c
-// 编译命令（使用 MinGW）: gcc -mwindows AMAI_GUI.c -o AMAI_GUI.exe
-
+#define WIN32_LEAN_AND_MEAN
+#define UNICODE
+#define _UNICODE
+#define _WIN32_WINNT 0x0600
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <commctrl.h>
