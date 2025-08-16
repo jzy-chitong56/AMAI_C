@@ -22,30 +22,48 @@ jobs:
 
     - name: Install required tools
       run: |
-        choco install -y make
         choco install -y upx
+
+    - name: Create build directory
+      run: mkdir build
 
     - name: Build application
       run: |
-    # 添加常用系统库 + 使用详细输出
-    cl /O1 /Os /GS- /MT /FeAMAI-Installer.exe main.c ^
-      user32.lib gdi32.lib comctl32.lib shell32.lib ^
-      kernel32.lib advapi32.lib /link /VERBOSE
-    
-    
-    if not exist AMAI-Installer.exe (
-      echo "##[error]编译失败：未生成 AMAI-Installer.exe"
-      dir /B *.obj   # 显示对象文件用于调试
-      dir /B *.lib   # 显示库文件
-      exit 1
-    )
-    
-    upx --best --lzma AMAI-Installer.exe
+        # 编译并链接程序，指定入口点
+        cl /O1 /Os /GS- /MT /Febuild/AMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64
+        
+        # 检查文件是否存在
+        if not exist build\AMAI-Installer.exe (
+          echo "Error: AMAI-Installer.exe not found!"
+          dir build
+          exit 1
+        )
+
+    - name: Debug directory
+      run: |
+        echo "当前目录内容:"
+        dir
+        echo "build目录内容:"
+        dir build
+
+    - name: Compress with UPX
+      run: |
+        cd build
+        upx --best --lzma AMAI-Installer.exe
+        
+        # 检查压缩后的文件大小
+        dir AMAI-Installer.exe
+
+    - name: Prepare artifacts
+      run: |
+        mkdir dist
+        copy build\AMAI-Installer.exe dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: AMAI-Installer
+        path: dist
 
   release:
     needs: build
@@ -57,3 +75,5 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: AMAI-Installer
+        path: dist
+          dist/AMAI-Installer.exe
