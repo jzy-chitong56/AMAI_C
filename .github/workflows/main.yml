@@ -30,7 +30,7 @@ jobs:
           -Wextra \
           -finput-charset=UTF-8 \
           -fexec-charset=CP936 \
-          src/main.c \
+          main.c \
           -o dist/AMAI_GUI.exe \
           -lcomctl32
         echo " Compiled: dist/AMAI_GUI.exe"
