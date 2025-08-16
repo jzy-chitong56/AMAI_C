@@ -32,25 +32,23 @@ jobs:
         # 编译并链接程序，指定入口点
         cl /O1 /Os /GS- /MT /Febuild/AMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64
         
-        # 检查文件是否存在
-        if not exist build\AMAI-Installer.exe (
-          echo "Error: AMAI-Installer.exe not found!"
-          dir build
+        if (-not (Test-Path -Path "build\AMAI-Installer.exe")) {
+          Write-Host "Error: AMAI-Installer.exe not found!"
+          Get-ChildItem -Path build
           exit 1
-        )
+        }
 
     - name: Debug directory
       run: |
-        echo "当前目录内容:"
-        dir
-        echo "build目录内容:"
-        dir build
+        Write-Host "当前目录内容:"
+        Get-ChildItem
+        Write-Host "build目录内容:"
+        Get-ChildItem -Path build
 
     - name: Compress with UPX
       run: |
         cd build
         upx --best --lzma AMAI-Installer.exe
-        
         # 检查压缩后的文件大小
         dir AMAI-Installer.exe
 
@@ -76,4 +74,3 @@ jobs:
       with:
         name: AMAI-Installer
         path: dist
-          dist/AMAI-Installer.exe
