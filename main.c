@@ -56,9 +56,9 @@ void ExecuteCommand()
     // 获取路径
     GetWindowTextW(hPathEdit, path, MAX_PATH);
     
-    // 构建命令（示例）
-    swprintf_s(cmd, L"InstallVERToMap.exe %s \"%s\" %d", version, path, commandMode);
-    
+    // 构建命令
+    swprintf_s(cmd, _countof(cmd), L"InstallVERToMap.exe %s \"%s\" %d", version, path, commandMode);
+
     // 执行外部命令
     STARTUPINFO si = { sizeof(si) };
     PROCESS_INFORMATION pi;
