@@ -29,9 +29,7 @@ jobs:
 
     - name: Build application
       run: |
-        # 编译并链接程序，添加缺失的库
-        cl /O1 /Os /GS- /MT /Febuild/AMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64
-        
+        cl /O1 /Os /GS- /MT /Febuild/AMAI-Installer.exe main.c user32.lib gdi32.lib comctl32.lib shell32.lib ole32.lib comdlg32.lib /link /ENTRY:WinMain /SUBSYSTEM:WINDOWS /MACHINE:X64
         # 使用PowerShell语法检查文件是否存在
         if (-not (Test-Path -Path "build\AMAI-Installer.exe")) {
           Write-Host "Error: AMAI-Installer.exe not found!"
